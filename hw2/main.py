@@ -1,22 +1,34 @@
-from src.item import Item
+import csv
 
-if __name__ == '__main__':
-    item = Item('Телефон', 10000, 5)
+class Item:
+    def __init__(self, name):
+        self.name = name
 
-    # длина наименования товара меньше 10 символов
-    item.name = 'Смартфон'
-    assert item.name == 'Смартфон'
+    @property
+    def name(self):
+        return self._name
 
-    # длина наименования товара больше 10 символов
-    item.name = 'СуперСмартфон'
-    # Exception: Длина наименования товара превышает 10 символов.
+    @name.setter
+    def name(self, value):
+        if len(value) > 10:
+            self._name = value[:10]
+        else:
+            self._name = value
 
-    Item.instantiate_from_csv('src/items.csv')  # создание объектов из данных файла
-    assert len(Item.all) == 5  # в файле 5 записей с данными по товарам
+    @staticmethod
+    def string_to_number(number_string):
+        try:
+            number = int(number_string)
+            return number
+        except ValueError:
+            raise ValueError("Invalid input")
 
-    item1 = Item.all[0]
-    assert item1.name == 'Смартфон'
+    @classmethod
+    def instantiate_from_csv(cls):
+        with open("src/items.csv", "r") as file:
+            reader = csv.DictReader(file)
 
-    assert Item.string_to_number('5') == 5
-    assert Item.string_to_number('5.0') == 5
-    assert Item.string_to_number('5.5') == 5
+            for row in reader:
+                item_name = row["name"]
+                quantity = cls.string_to_number(row["quantity"])
+                price = float(row["price"])
